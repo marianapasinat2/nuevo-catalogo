@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artesanías Mariana Pasinato</title>
+
+  <!-- ═══════════════════════════════════════════════
+       ESTILOS EMBEBIDOS
+  ═══════════════════════════════════════════════ -->
+  <style>
+    /* ── Variables de color y tipografía ── */
+    :root {
+      --primario:    #6b3f2a;   /* marrón cálido */
+      --acento:      #c9843a;   /* naranja terracota */
+      --fondo:       #fdf8f3;   /* crema suave */
+      --superficie:  #ffffff;
+      --texto:       #3b2a1a;
+      --texto-claro: #7a6050;
+      --borde:       #e0cfc0;
+      --peligro:     #c0392b;
+      --exito:       #27ae60;
+      --radio:       12px;
+      --sombra:      0 4px 18px rgba(0,0,0,0.10);
+    }
+
+    /* ── Reset básico ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── CABECERA ── */
+    header {
+      background: linear-gradient(135deg, var(--primario) 0%, #4a2a18 100%);
+      color: #fff;
+      text-align: center;
+      padding: 2.5rem 1.5rem 2rem;
+      position: relative;
+    }
+
+    header .logo-emoji {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: .5rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 5vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    header p.subtitulo {
+      margin-top: .5rem;
+      font-size: 1rem;
+      opacity: .85;
+      font-style: italic;
+    }
+
+    /* ── BOTÓN WHATSAPP flotante ── */
+    #btn-whatsapp {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 999;
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: .85rem 1.4rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      box-shadow: 0 6px 22px rgba(37,211,102,.45);
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    #btn-whatsapp:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(37,211,102,.55);
+    }
+
+    #btn-whatsapp svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+    /* ── CONTENIDO PRINCIPAL ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem 6rem;
+    }
+
+    /* ── PANEL DE ADMINISTRACIÓN ── */
+    #panel-admin {
+      background: var(--superficie);
+      border: 2px dashed var(--borde);
+      border-radius: var(--radio);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    #panel-admin summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primario);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      user-select: none;
+      list-style: none;           /* oculta triángulo nativo */
+    }
+
+    #panel-admin summary::before {
+      content: '▶';
+      display: inline-block;
+      transition: transform .2s;
+      font-size: .75rem;
+    }
+
+    #panel-admin[open] summary::before { transform: rotate(90deg); }
+
+    /* Formulario de nuevo producto */
+    #formulario-producto {
+      margin-top: 1.2rem;
+      display: grid;
+      gap: .85rem;
+    }
+
+    #formulario-producto label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--texto-claro);
+      display: block;
+      margin-bottom: .25rem;
+    }
+
+    #formulario-producto input,
+    #formulario-producto textarea {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 8px;
+      font-size: .95rem;
+      font-family: inherit;
+      color: var(--texto);
+      background: var(--fondo);
+      transition: border-color .15s;
+    }
+
+    #formulario-producto input:focus,
+    #formulario-producto textarea:focus {
+      outline: none;
+      border-color: var(--acento);
+    }
+
+    #formulario-producto textarea { resize: vertical; min-height: 70px; }
+
+    /* Vista previa de imagen */
+    #preview-imagen {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: none;
+      margin-top: .4rem;
+      border: 1.5px solid var(--borde);
+    }
+
+    /* Botón principal */
+    .btn-primario {
+      background: var(--primario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background .15s, transform .1s;
+    }
+
+    .btn-primario:hover { background: #4a2a18; transform: translateY(-1px); }
+
+    /* ── SECCIÓN DE PRODUCTOS ── */
+    #seccion-productos h2 {
+      font-size: 1.5rem;
+      color: var(--primario);
+      margin-bottom: 1.5rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--borde);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* Contador de productos */
+    #contador-productos {
+      font-size: .85rem;
+      font-weight: 600;
+      background: var(--acento);
+      color: #fff;
+      border-radius: 20px;
+      padding: .15rem .7rem;
+    }
+
+    /* Grilla de tarjetas */
+    #grilla-productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── TARJETA DE PRODUCTO ── */
+    .tarjeta {
+      background: var(--superficie);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+      position: relative;
+    }
+
+    .tarjeta:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.14);
+    }
+
+    /* Imagen de la tarjeta */
+    .tarjeta-imagen {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: var(--fondo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      color: var(--borde);
+    }
+
+    .tarjeta-imagen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Cuerpo de la tarjeta */
+    .tarjeta-cuerpo {
+      padding: 1rem 1.1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+
+    .tarjeta-nombre {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primario);
+      line-height: 1.3;
+    }
+
+    .tarjeta-descripcion {
+      font-size: .88rem;
+      color: var(--texto-claro);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .tarjeta-precio {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--acento);
+      margin-top: .4rem;
+    }
+
+    /* Botón eliminar */
+    .btn-eliminar {
+      margin: 0 1.1rem 1rem;
+      background: transparent;
+      color: var(--peligro);
+      border: 1.5px solid var(--peligro);
+      border-radius: 7px;
+      padding: .5rem;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+    }
+
+    .btn-eliminar:hover {
+      background: var(--peligro);
+      color: #fff;
+    }
+
+    /* Mensaje cuando no hay productos */
+    #mensaje-vacio {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--texto-claro);
+      display: none;
+    }
+
+    #mensaje-vacio .emoji-grande { font-size: 3.5rem; display: block; }
+    #mensaje-vacio p { margin-top: .75rem; font-size: 1rem; }
+
+    /* ── MODAL DE CONFIRMACIÓN ── */
+    #overlay-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    #overlay-modal.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #caja-modal {
+      background: var(--superficie);
+      border-radius: var(--radio);
+      padding: 2rem;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      transform: scale(.95);
+      transition: transform .2s;
+    }
+
+    #overlay-modal.visible #caja-modal { transform: scale(1); }
+
+    #caja-modal h3 { font-size: 1.2rem; color: var(--primario); margin-bottom: .75rem; }
+    #caja-modal p  { color: var(--texto-claro); font-size: .95rem; }
+
+    .fila-botones-modal {
+      display: flex;
+      gap: .75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: .7rem;
+      border-radius: 8px;
+      border: none;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-modal:hover { opacity: .85; }
+    .btn-cancelar { background: var(--borde); color: var(--texto); }
+    .btn-confirmar { background: var(--peligro); color: #fff; }
+
+    /* ── TOAST / NOTIFICACIÓN ── */
+    #toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--texto);
+      color: #fff;
+      padding: .7rem 1.4rem;
+      border-radius: 50px;
+      font-size: .9rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      z-index: 1100;
+      white-space: nowrap;
+    }
+
+    #toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── PIE DE PÁGINA ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: .82rem;
+      color: var(--texto-claro);
+      border-top: 1px solid var(--borde);
+    }
+
+    /* ── RESPONSIVE extra-pequeño ── */
+    @media (max-width: 400px) {
+      #grilla-productos { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     CABECERA DEL NEGOCIO
+═══════════════════════════════════════════════ -->
+<header>
+  <span class="logo-emoji">🧶</span>
+  <h1>Artesanías Mariana Pasinato</h1>
+  <p class="subtitulo">Piezas únicas hechas con amor ✨</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+═══════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── Panel de administración (colapsable) ── -->
+  <details id="panel-admin">
+    <summary>🛠️ Administrar productos</summary>
+
+    <form id="formulario-producto" autocomplete="off">
+
+      <!-- Nombre del producto -->
+      <div>
+        <label for="campo-nombre">Nombre del producto *</label>
+        <input
+          type="text"
+          id="campo-nombre"
+          placeholder="Ej: Canasta de mimbre tejida"
+          required
+        />
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label for="campo-descripcion">Descripción</label>
+        <textarea
+          id="campo-descripcion"
+          placeholder="Materiales, tamaño, colores disponibles…"
+        ></textarea>
+      </div>
+
+      <!-- Precio -->
+      <div>
+        <label for="campo-precio">Precio *</label>
+        <input
+          type="text"
+          id="campo-precio"
+          placeholder="Ej: $5.000 o USD 10"
+          required
+        />
+      </div>
+
+      <!-- Imagen (archivo local) -->
+      <div>
+        <label for="campo-imagen">Foto del producto</label>
+        <input
+          type="file"
+          id="campo-imagen"
+          accept="image/*"
+        />
+        <!-- Vista previa de la foto seleccionada -->
+        <img id="preview-imagen" alt="Vista previa" />
+      </div>
+
+      <button type="submit" class="btn-primario">➕ Agregar producto</button>
+    </form>
+  </details>
+
+  <!-- ── Lista de productos ── -->
+  <section id="seccion-productos">
+    <h2>
+      🛍️ Productos disponibles
+      <span id="contador-productos">0</span>
+    </h2>
+
+    <!-- Mensaje si no hay productos cargados -->
+    <div id="mensaje-vacio">
+      <span class="emoji-grande">🪴</span>
+      <p>Todavía no hay productos cargados.<br/>
+         Usá el panel de arriba para agregar el primero.</p>
+    </div>
+
+    <!-- Grilla donde se insertan las tarjetas -->
+    <div id="grilla-productos"></div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════
+     PIE DE PÁGINA
+═══════════════════════════════════════════════ -->
+<footer>
+  © 2026 Artesanías Mariana Pasinato — Hecho con 💛
+</footer>
+
+<!-- ═══════════════════════════════════════════════
+     BOTÓN FLOTANTE DE WHATSAPP
+     ⚠️  Cambiá el número: reemplazá 5491112345678
+         por tu número real con código de país
+         (ej: Argentina → 549 + código área + número)
+═══════════════════════════════════════════════ -->
+<a
+  id="btn-whatsapp"
+  href="https://wa.me/5491112345678?text=Hola%20Mariana%2C%20vi%20tus%20art%C3%ADculos%20y%20me%20interesa%20consultarte%20%F0%9F%99%82"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Contactar por WhatsApp"
+>
+  <!-- Ícono oficial de WhatsApp (SVG inline) -->
+  <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M16 .8C7.6.8.8 7.6.8 16c0 2.7.7 5.3 2 7.6L.8 31.2l7.8-2c2.2 1.2 4.7 1.8 7.4 1.8 8.4 0 15.2-6.8 15.2-15.2C31.2 7.6 24.4.8 16 .8zm0 27.8c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.6 1.2 1.2-4.5-.3-.5C3.9 20.7 3.2 18.4 3.2 16 3.2 9.2 9.2 3.2 16 3.2S28.8 9.2 28.8 16 22.8 28.6 16 28.6zm8.3-10.8c-.5-.2-2.7-1.3-3.1-1.5-.4-.1-.7-.2-1 .2-.3.4-1.2 1.5-1.4 1.8-.3.3-.5.3-1 .1-.5-.2-2-.7-3.8-2.3-1.4-1.2-2.4-2.8-2.6-3.2-.3-.5 0-.7.2-1 .2-.2.5-.5.7-.8.2-.3.3-.5.4-.8.1-.3 0-.6-.1-.8-.1-.2-1-2.5-1.4-3.4-.4-.9-.7-.8-1-.8h-.8c-.3 0-.7.1-1.1.5-.4.4-1.4 1.4-1.4 3.4s1.5 3.9 1.7 4.2c.2.3 2.9 4.4 7 6.2 1 .4 1.7.7 2.3.9.9.3 1.8.3 2.5.2.8-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.1-.4-.2-.9-.4z"/>
+  </svg>
+  WhatsApp
+</a>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL DE CONFIRMACIÓN DE ELIMINACIÓN
+═══════════════════════════════════════════════ -->
+<div id="overlay-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
+  <div id="caja-modal">
+    <h3 id="titulo-modal">🗑️ Eliminar producto</h3>
+    <p id="texto-modal">¿Seguro que querés eliminar este producto?<br/>Esta acción no se puede deshacer.</p>
+    <div class="fila-botones-modal">
+      <button class="btn-modal btn-cancelar" id="btn-cancelar-modal">Cancelar</button>
+      <button class="btn-modal btn-confirmar" id="btn-confirmar-modal">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Notificación tipo toast ── -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT EMBEBIDO
+═══════════════════════════════════════════════ -->
+<script>
+  /* ──────────────────────────────────────────────
+     CLAVE de almacenamiento en localStorage
+     Los productos se guardan en el navegador para
+     que no se pierdan al cerrar la página.
+  ────────────────────────────────────────────── */
+  const CLAVE_STORAGE = 'artesanias_mp_productos';
+
+  /* ──────────────────────────────────────────────
+     ESTADO GLOBAL
+  ────────────────────────────────────────────── */
+  let productos = [];          // array de objetos de producto
+  let idAEliminar = null;      // id del producto pendiente de confirmar borrado
+
+  /* ──────────────────────────────────────────────
+     REFERENCIAS A ELEMENTOS DEL DOM
+  ────────────────────────────────────────────── */
+  const formulario       = document.getElementById('formulario-producto');
+  const campoNombre      = document.getElementById('campo-nombre');
+  const campoDescripcion = document.getElementById('campo-descripcion');
+  const campoPrecio      = document.getElementById('campo-precio');
+  const campoImagen      = document.getElementById('campo-imagen');
+  const previewImagen    = document.getElementById('preview-imagen');
+  const grillaProductos  = document.getElementById('grilla-productos');
+  const mensajeVacio     = document.getElementById('mensaje-vacio');
+  const contadorEl       = document.getElementById('contador-productos');
+  const overlayModal     = document.getElementById('overlay-modal');
+  const btnCancelarModal = document.getElementById('btn-cancelar-modal');
+  const btnConfirmarModal= document.getElementById('btn-confirmar-modal');
+  const toastEl          = document.getElementById('toast');
+
+  /* ──────────────────────────────────────────────
+     PERSISTENCIA: cargar y guardar en localStorage
+  ────────────────────────────────────────────── */
+  function cargarDesdeStorage() {
+    try {
+      const datos = localStorage.getItem(CLAVE_STORAGE);
+      productos = datos ? JSON.parse(datos) : [];
+    } catch (e) {
+      // Si falla la lectura (modo privado estricto, etc.) empezamos vacíos
+      productos = [];
+    }
+  }
+
+  function guardarEnStorage() {
+    try {
+      localStorage.setItem(CLAVE_STORAGE, JSON.stringify(productos));
+    } catch (e) {
+      mostrarToast('⚠️ No se pudo guardar (almacenamiento lleno)');
+    }
+  }
+
+  /* ──────────────────────────────────────────────
+     RENDERIZADO: dibuja todas las tarjetas
+  ────────────────────────────────────────────── */
+  function renderizarProductos() {
+    // Actualizar contador
+    contadorEl.textContent = productos.length;
+
+    // Mostrar u ocultar mensaje de vacío
+    mensajeVacio.style.display = productos.length === 0 ? 'block' : 'none';
+
+    // Limpiar grilla y volver a pintar
+    grillaProductos.innerHTML = '';
+
+    productos.forEach(function(p) {
+      const tarjeta = document.createElement('article');
+      tarjeta.className = 'tarjeta';
+
+      /* Sección de imagen */
+      const divImagen = document.createElement('div');
+      divImagen.className = 'tarjeta-imagen';
+
+      if (p.imagenBase64) {
+        // Si el producto tiene imagen guardada como Base64
+        const img = document.createElement('img');
+        img.src = p.imagenBase64;
+        img.alt = p.nombre;
+        divImagen.appendChild(img);
+      } else {
+        // Ícono de reemplazo si no hay foto
+        divImagen.textContent = '🖼️';
+      }
+
+      /* Cuerpo de la tarjeta */
+      const cuerpo = document.createElement('div');
+      cuerpo.className = 'tarjeta-cuerpo';
+
+      const nombre = document.createElement('p');
+      nombre.className = 'tarjeta-nombre';
+      nombre.textContent = p.nombre;
+
+      const descripcion = document.createElement('p');
+      descripcion.className = 'tarjeta-descripcion';
+      descripcion.textContent = p.descripcion || '';
+
+      const precio = document.createElement('p');
+      precio.className = 'tarjeta-precio';
+      precio.textContent = p.precio;
+
+      cuerpo.appendChild(nombre);
+      if (p.descripcion) cuerpo.appendChild(descripcion);
+      cuerpo.appendChild(precio);
+
+      /* Botón eliminar */
+      const btnEliminar = document.createElement('button');
+      btnEliminar.className = 'btn-eliminar';
+      btnEliminar.setAttribute('aria-label', 'Eliminar ' + p.nombre);
+      btnEliminar.innerHTML = '🗑️ Eliminar producto vendido';
+      btnEliminar.addEventListener('click', function() {
+        abrirModalConfirmacion(p.id);
+      });
+
+      /* Ensamblar la tarjeta */
+      tarjeta.appendChild(divImagen);
+      tarjeta.appendChild(cuerpo);
+      tarjeta.appendChild(btnEliminar);
+
+      grillaProductos.appendChild(tarjeta);
+    });
+  }
+
+  /* ──────────────────────────────────────────────
+     VISTA PREVIA de imagen al seleccionar archivo
+  ────────────────────────────────────────────── */
+  campoImagen.addEventListener('change', function() {
+    const archivo = this.files[0];
+    if (!archivo) {
+      previewImagen.style.display = 'none';
+      return;
+    }
+    const lector = new FileReader();
+    lector.onload = function(e) {
+      previewImagen.src = e.target.result;
+      previewImagen.style.display = 'block';
+    };
+    lector.readAsDataURL(archivo);
+  });
+
+  /* ──────────────────────────────────────────────
+     AGREGAR PRODUCTO al enviar el formulario
+  ────────────────────────────────────────────── */
+  formulario.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const nombre      = campoNombre.value.trim();
+    const descripcion = campoDescripcion.value.trim();
+    const precio      = campoPrecio.value.trim();
+    const archivo     = campoImagen.files[0];
+
+    if (!nombre || !precio) {
+      mostrarToast('⚠️ Nombre y precio son obligatorios');
+      return;
+    }
+
+    /* Si hay imagen, convertirla a Base64 antes de guardar */
+    if (archivo) {
+      const lector = new FileReader();
+      lector.onload = function(e) {
+        agregarProducto(nombre, descripcion, precio, e.target.result);
+      };
+      lector.readAsDataURL(archivo);
+    } else {
+      agregarProducto(nombre, descripcion, precio, null);
+    }
+  });
+
+  function agregarProducto(nombre, descripcion, precio, imagenBase64) {
+    /* Crear objeto de producto con id único */
+    const nuevoProducto = {
+      id:           Date.now(),   // timestamp como identificador único
+      nombre:       nombre,
+      descripcion:  descripcion,
+      precio:       precio,
+      imagenBase64: imagenBase64
+    };
+
+    productos.push(nuevoProducto);
+    guardarEnStorage();
+    renderizarProductos();
+    limpiarFormulario();
+    mostrarToast('✅ Producto agregado correctamente');
+  }
+
+  /* Limpiar el formulario después de agregar */
+  function limpiarFormulario() {
+    formulario.reset();
+    previewImagen.style.display = 'none';
+    previewImagen.src = '';
+  }
+
+  /* ──────────────────────────────────────────────
+     MODAL DE CONFIRMACIÓN DE ELIMINACIÓN
+  ────────────────────────────────────────────── */
+  function abrirModalConfirmacion(id) {
+    idAEliminar = id;
+    overlayModal.classList.add('visible');
+    btnConfirmarModal.focus();
+  }
+
+  function cerrarModal() {
+    idAEliminar = null;
+    overlayModal.classList.remove('visible');
+  }
+
+  btnCancelarModal.addEventListener('click', cerrarModal);
+
+  /* Cerrar modal al hacer clic fuera de la caja */
+  overlayModal.addEventListener('click', function(e) {
+    if (e.target === overlayModal) cerrarModal();
+  });
+
+  /* Cerrar modal con Escape */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlayModal.classList.contains('visible')) {
+      cerrarModal();
+    }
+  });
+
+  btnConfirmarModal.addEventListener('click', function() {
+    if (idAEliminar === null) return;
+
+    /* Filtrar el producto con ese id fuera del array */
+    productos = productos.filter(function(p) {
+      return p.id !== idAEliminar;
+    });
+
+    guardarEnStorage();
+    renderizarProductos();
+    cerrarModal();
+    mostrarToast('🗑️ Producto eliminado');
+  });
+
+  /* ──────────────────────────────────────────────
+     TOAST (notificación temporal)
+  ────────────────────────────────────────────── */
+  let timerToast = null;
+
+  function mostrarToast(mensaje) {
+    toastEl.textContent = mensaje;
+    toastEl.classList.add('visible');
+
+    /* Limpiar temporizador anterior si existe */
+    if (timerToast) clearTimeout(timerToast);
+
+    timerToast = setTimeout(function() {
+      toastEl.classList.remove('visible');
+    }, 3000);
+  }
+
+  /* ──────────────────────────────────────────────
+     INICIO: cargar productos guardados y renderizar
+  ────────────────────────────────────────────── */
+  cargarDesdeStorage();
+  renderizarProductos();
+</script>
+
+</body>
+</html>
