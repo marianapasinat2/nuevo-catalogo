@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Artesanías Mariana Pasinato</title>
+
+  <style>
+    /* ── Variables ── */
+    :root {
+      --primario:    #6b3f2a;
+      --acento:      #c9843a;
+      --fondo:       #fdf8f3;
+      --superficie:  #ffffff;
+      --texto:       #3b2a1a;
+      --texto-claro: #7a6050;
+      --borde:       #e0cfc0;
+      --peligro:     #c0392b;
+      --exito:       #27ae60;
+      --radio:       12px;
+      --sombra:      0 4px 18px rgba(0,0,0,.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ════════════════════════
+       PANTALLA DE LOGIN
+    ════════════════════════ */
+    #pantalla-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, var(--primario) 0%, #3a1f0e 100%);
+    }
+
+    .caja-login {
+      background: var(--superficie);
+      border-radius: var(--radio);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .caja-login .emoji-lock {
+      font-size: 2.8rem;
+      display: block;
+      margin-bottom: .75rem;
+    }
+
+    .caja-login h1 {
+      font-size: 1.4rem;
+      color: var(--primario);
+      margin-bottom: .3rem;
+    }
+
+    .caja-login p.sub {
+      font-size: .85rem;
+      color: var(--texto-claro);
+      margin-bottom: 1.5rem;
+    }
+
+    .caja-login input[type="password"] {
+      width: 100%;
+      padding: .75rem 1rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--texto);
+      background: var(--fondo);
+      margin-bottom: .75rem;
+      transition: border-color .15s;
+    }
+
+    .caja-login input[type="password"]:focus {
+      outline: none;
+      border-color: var(--acento);
+    }
+
+    #error-login {
+      color: var(--peligro);
+      font-size: .85rem;
+      margin-bottom: .75rem;
+      min-height: 1.2em;
+    }
+
+    /* ════════════════════════
+       CABECERA ADMIN
+    ════════════════════════ */
+    #app-admin { display: none; } /* oculto hasta login correcto */
+
+    header.admin-header {
+      background: linear-gradient(135deg, var(--primario) 0%, #4a2a18 100%);
+      color: #fff;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    header.admin-header .titulo-header {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    header.admin-header h1 {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      line-height: 1.2;
+    }
+
+    header.admin-header .badge-admin {
+      background: var(--acento);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .2rem .6rem;
+      border-radius: 20px;
+      letter-spacing: .05em;
+    }
+
+    /* Botones de la cabecera */
+    .acciones-header {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      border: none;
+      border-radius: 8px;
+      padding: .55rem 1rem;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      transition: opacity .15s, transform .1s;
+      white-space: nowrap;
+    }
+
+    .btn-header:hover { opacity: .88; transform: translateY(-1px); }
+
+    .btn-exportar  { background: var(--exito);  color: #fff; }
+    .btn-salir     { background: rgba(255,255,255,.15); color: #fff; border: 1.5px solid rgba(255,255,255,.4); }
+    .btn-cambiar-pw { background: rgba(255,255,255,.15); color: #fff; border: 1.5px solid rgba(255,255,255,.4); }
+
+    /* ════════════════════════
+       MAIN
+    ════════════════════════ */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem 5rem;
+    }
+
+    /* ── Panel agregar producto ── */
+    .panel-agregar {
+      background: var(--superficie);
+      border: 2px dashed var(--borde);
+      border-radius: var(--radio);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .panel-agregar h2 {
+      font-size: 1.1rem;
+      color: var(--primario);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: .85rem;
+    }
+
+    .form-grid label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--texto-claro);
+      display: block;
+      margin-bottom: .25rem;
+    }
+
+    .form-grid input,
+    .form-grid textarea {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 8px;
+      font-size: .95rem;
+      font-family: inherit;
+      color: var(--texto);
+      background: var(--fondo);
+      transition: border-color .15s;
+    }
+
+    .form-grid input:focus,
+    .form-grid textarea:focus {
+      outline: none;
+      border-color: var(--acento);
+    }
+
+    .form-grid textarea { resize: vertical; min-height: 70px; }
+
+    #preview-imagen {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: none;
+      margin-top: .4rem;
+      border: 1.5px solid var(--borde);
+    }
+
+    /* ── Botones principales ── */
+    .btn-primario {
+      background: var(--primario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background .15s, transform .1s;
+    }
+
+    .btn-primario:hover { background: #4a2a18; transform: translateY(-1px); }
+
+    /* ── Sección de productos ── */
+    #seccion-productos h2 {
+      font-size: 1.4rem;
+      color: var(--primario);
+      margin-bottom: 1.2rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--borde);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    #contador-productos {
+      font-size: .85rem;
+      font-weight: 600;
+      background: var(--acento);
+      color: #fff;
+      border-radius: 20px;
+      padding: .15rem .7rem;
+    }
+
+    /* Aviso de exportación pendiente */
+    #aviso-exportar {
+      background: #fff8e1;
+      border: 1.5px solid #f5c518;
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-size: .88rem;
+      color: #7a5a00;
+      margin-bottom: 1.2rem;
+      display: none;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* ── Grilla de tarjetas ── */
+    #grilla-productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .tarjeta {
+      background: var(--superficie);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .tarjeta:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.14);
+    }
+
+    .tarjeta-imagen {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      background: var(--fondo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--borde);
+    }
+
+    .tarjeta-imagen img { width: 100%; height: 100%; object-fit: cover; }
+
+    .tarjeta-cuerpo {
+      padding: 1rem 1.1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+
+    .tarjeta-nombre      { font-size: 1rem; font-weight: 700; color: var(--primario); }
+    .tarjeta-descripcion { font-size: .87rem; color: var(--texto-claro); line-height: 1.5; flex: 1; }
+    .tarjeta-precio      { font-size: 1.2rem; font-weight: 800; color: var(--acento); margin-top: .3rem; }
+
+    .btn-eliminar {
+      margin: 0 1rem 1rem;
+      background: transparent;
+      color: var(--peligro);
+      border: 1.5px solid var(--peligro);
+      border-radius: 7px;
+      padding: .5rem;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+    }
+
+    .btn-eliminar:hover { background: var(--peligro); color: #fff; }
+
+    /* Mensaje vacío */
+    #mensaje-vacio {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--texto-claro);
+      display: none;
+    }
+
+    #mensaje-vacio .emoji-grande { font-size: 3.5rem; display: block; }
+    #mensaje-vacio p { margin-top: .75rem; }
+
+    /* ════════════════════════
+       MODAL GENÉRICO
+    ════════════════════════ */
+    .overlay-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .overlay-modal.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .caja-modal {
+      background: var(--superficie);
+      border-radius: var(--radio);
+      padding: 2rem;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      transform: scale(.95);
+      transition: transform .2s;
+    }
+
+    .overlay-modal.visible .caja-modal { transform: scale(1); }
+
+    .caja-modal h3 { font-size: 1.2rem; color: var(--primario); margin-bottom: .75rem; }
+    .caja-modal p  { color: var(--texto-claro); font-size: .9rem; margin-bottom: 1rem; }
+
+    .caja-modal input[type="password"] {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 8px;
+      font-size: .95rem;
+      margin-bottom: .5rem;
+    }
+
+    .caja-modal input[type="password"]:focus {
+      outline: none;
+      border-color: var(--acento);
+    }
+
+    .error-modal {
+      color: var(--peligro);
+      font-size: .82rem;
+      margin-bottom: .75rem;
+      min-height: 1.1em;
+    }
+
+    .fila-botones-modal {
+      display: flex;
+      gap: .75rem;
+      margin-top: .5rem;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: .7rem;
+      border-radius: 8px;
+      border: none;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-modal:hover { opacity: .85; }
+    .btn-cancelar  { background: var(--borde);    color: var(--texto); }
+    .btn-confirmar { background: var(--peligro);  color: #fff; }
+    .btn-guardar   { background: var(--primario); color: #fff; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--texto);
+      color: #fff;
+      padding: .7rem 1.4rem;
+      border-radius: 50px;
+      font-size: .9rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      z-index: 1100;
+      white-space: nowrap;
+    }
+
+    #toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: .8rem;
+      color: var(--texto-claro);
+      border-top: 1px solid var(--borde);
+    }
+
+    @media (max-width: 400px) {
+      #grilla-productos { grid-template-columns: 1fr; }
+      .acciones-header  { width: 100%; }
+      .btn-header       { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     PANTALLA DE LOGIN
+════════════════════════════════════════════ -->
+<div id="pantalla-login">
+  <div class="caja-login">
+    <span class="emoji-lock">🔐</span>
+    <h1>Panel de administración</h1>
+    <p class="sub">Artesanías Mariana Pasinato</p>
+
+    <input
+      type="password"
+      id="campo-password-login"
+      placeholder="Ingresá tu contraseña"
+      autocomplete="current-password"
+    />
+    <div id="error-login"></div>
+
+    <button class="btn-primario" id="btn-ingresar">Ingresar</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     APLICACIÓN ADMIN (visible tras el login)
+════════════════════════════════════════════ -->
+<div id="app-admin">
+
+  <!-- Cabecera -->
+  <header class="admin-header">
+    <div class="titulo-header">
+      <span>🧶</span>
+      <div>
+        <h1>Artesanías Mariana Pasinato</h1>
+        <span class="badge-admin">ADMINISTRACIÓN</span>
+      </div>
+    </div>
+
+    <div class="acciones-header">
+      <!-- Exportar catálogo público -->
+      <button class="btn-header btn-exportar" id="btn-exportar">
+        📥 Exportar catálogo
+      </button>
+      <!-- Cambiar contraseña -->
+      <button class="btn-header btn-cambiar-pw" id="btn-cambiar-pw">
+        🔑 Contraseña
+      </button>
+      <!-- Cerrar sesión -->
+      <button class="btn-header btn-salir" id="btn-salir">
+        🚪 Salir
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Aviso de exportación pendiente ── -->
+    <div id="aviso-exportar">
+      ⚠️ Hay cambios sin exportar. Presioná <strong>📥 Exportar catálogo</strong> para actualizar tu página pública.
+    </div>
+
+    <!-- ── Formulario de nuevo producto ── -->
+    <div class="panel-agregar">
+      <h2>➕ Agregar nuevo producto</h2>
+
+      <form id="formulario-producto" class="form-grid" autocomplete="off">
+
+        <div>
+          <label for="campo-nombre">Nombre del producto *</label>
+          <input type="text" id="campo-nombre" placeholder="Ej: Canasta de mimbre tejida" required />
+        </div>
+
+        <div>
+          <label for="campo-descripcion">Descripción</label>
+          <textarea id="campo-descripcion" placeholder="Materiales, tamaño, colores disponibles…"></textarea>
+        </div>
+
+        <div>
+          <label for="campo-precio">Precio *</label>
+          <input type="text" id="campo-precio" placeholder="Ej: $5.000 o USD 10" required />
+        </div>
+
+        <div>
+          <label for="campo-imagen">Foto del producto</label>
+          <input type="file" id="campo-imagen" accept="image/*" />
+          <img id="preview-imagen" alt="Vista previa" />
+        </div>
+
+        <button type="submit" class="btn-primario">➕ Agregar producto</button>
+      </form>
+    </div>
+
+    <!-- ── Lista de productos ── -->
+    <section id="seccion-productos">
+      <h2>
+        🛍️ Productos cargados
+        <span id="contador-productos">0</span>
+      </h2>
+
+      <div id="mensaje-vacio">
+        <span class="emoji-grande">🪴</span>
+        <p>Todavía no hay productos cargados.</p>
+      </div>
+
+      <div id="grilla-productos"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    Panel de administración · Artesanías Mariana Pasinato
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: confirmar eliminación
+════════════════════════════════════════════ -->
+<div id="modal-eliminar" class="overlay-modal" role="dialog" aria-modal="true">
+  <div class="caja-modal">
+    <h3>🗑️ Eliminar producto</h3>
+    <p>¿Seguro que querés eliminar este producto?<br/>Esta acción no se puede deshacer.</p>
+    <div class="fila-botones-modal">
+      <button class="btn-modal btn-cancelar" id="btn-cancelar-eliminar">Cancelar</button>
+      <button class="btn-modal btn-confirmar" id="btn-confirmar-eliminar">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: cambiar contraseña
+════════════════════════════════════════════ -->
+<div id="modal-password" class="overlay-modal" role="dialog" aria-modal="true">
+  <div class="caja-modal">
+    <h3>🔑 Cambiar contraseña</h3>
+    <p>Ingresá la contraseña actual y después la nueva (mínimo 4 caracteres).</p>
+
+    <input type="password" id="pw-actual"   placeholder="Contraseña actual" />
+    <input type="password" id="pw-nueva"    placeholder="Nueva contraseña" style="margin-top:.5rem" />
+    <input type="password" id="pw-confirmar" placeholder="Repetir nueva contraseña" style="margin-top:.5rem" />
+
+    <div class="error-modal" id="error-pw-modal"></div>
+
+    <div class="fila-botones-modal">
+      <button class="btn-modal btn-cancelar" id="btn-cancelar-pw">Cancelar</button>
+      <button class="btn-modal btn-guardar"  id="btn-guardar-pw">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+  /* ─────────────────────────────────────────
+     CONFIGURACIÓN
+     ⚠️ Cambiá 'mariana2024' por tu contraseña
+        antes de subir a GitHub Pages.
+  ───────────────────────────────────────── */
+  const CLAVE_STORAGE_PRODUCTOS = 'artesanias_mp_productos';
+  const CLAVE_STORAGE_PASSWORD  = 'artesanias_mp_password';
+  const PASSWORD_POR_DEFECTO    = 'mariana2024';
+
+  /* ─────────────────────────────────────────
+     ESTADO
+  ───────────────────────────────────────── */
+  let productos        = [];
+  let idAEliminar      = null;
+  let cambiosSinExport = false; // avisa cuando hay cambios no exportados
+
+  /* ─────────────────────────────────────────
+     HASH SHA-256 (Web Crypto API nativa)
+     Permite guardar la contraseña como hash
+     en lugar de texto plano.
+  ───────────────────────────────────────── */
+  async function hashear(texto) {
+    const codificado = new TextEncoder().encode(texto);
+    const buffer     = await crypto.subtle.digest('SHA-256', codificado);
+    return Array.from(new Uint8Array(buffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  /* Devuelve el hash guardado (o genera el de la contraseña por defecto) */
+  async function obtenerHashGuardado() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE_PASSWORD);
+    if (guardado) return guardado;
+    // Primera vez: guardar el hash de la contraseña por defecto
+    const h = await hashear(PASSWORD_POR_DEFECTO);
+    localStorage.setItem(CLAVE_STORAGE_PASSWORD, h);
+    return h;
+  }
+
+  /* ─────────────────────────────────────────
+     REFERENCIAS AL DOM
+  ───────────────────────────────────────── */
+  const pantallaLogin      = document.getElementById('pantalla-login');
+  const appAdmin           = document.getElementById('app-admin');
+  const campoLoginPw       = document.getElementById('campo-password-login');
+  const btnIngresar        = document.getElementById('btn-ingresar');
+  const errorLogin         = document.getElementById('error-login');
+
+  const formulario         = document.getElementById('formulario-producto');
+  const campoNombre        = document.getElementById('campo-nombre');
+  const campoDescripcion   = document.getElementById('campo-descripcion');
+  const campoPrecio        = document.getElementById('campo-precio');
+  const campoImagen        = document.getElementById('campo-imagen');
+  const previewImagen      = document.getElementById('preview-imagen');
+  const grillaProductos    = document.getElementById('grilla-productos');
+  const mensajeVacio       = document.getElementById('mensaje-vacio');
+  const contadorEl         = document.getElementById('contador-productos');
+  const avisoExportar      = document.getElementById('aviso-exportar');
+
+  const btnExportar        = document.getElementById('btn-exportar');
+  const btnCambiarPw       = document.getElementById('btn-cambiar-pw');
+  const btnSalir           = document.getElementById('btn-salir');
+
+  const modalEliminar      = document.getElementById('modal-eliminar');
+  const btnCancelarElim    = document.getElementById('btn-cancelar-eliminar');
+  const btnConfirmarElim   = document.getElementById('btn-confirmar-eliminar');
+
+  const modalPassword      = document.getElementById('modal-password');
+  const inputPwActual      = document.getElementById('pw-actual');
+  const inputPwNueva       = document.getElementById('pw-nueva');
+  const inputPwConfirmar   = document.getElementById('pw-confirmar');
+  const errorPwModal       = document.getElementById('error-pw-modal');
+  const btnCancelarPw      = document.getElementById('btn-cancelar-pw');
+  const btnGuardarPw       = document.getElementById('btn-guardar-pw');
+
+  const toastEl            = document.getElementById('toast');
+
+  /* ─────────────────────────────────────────
+     LOGIN
+  ───────────────────────────────────────── */
+  async function intentarLogin() {
+    const ingresada  = campoLoginPw.value;
+    const hashIngres = await hashear(ingresada);
+    const hashGuard  = await obtenerHashGuardado();
+
+    if (hashIngres === hashGuard) {
+      pantallaLogin.style.display = 'none';
+      appAdmin.style.display      = 'block';
+      cargarDesdeStorage();
+      renderizarProductos();
+      errorLogin.textContent = '';
+    } else {
+      errorLogin.textContent = '❌ Contraseña incorrecta. Intentá de nuevo.';
+      campoLoginPw.value     = '';
+      campoLoginPw.focus();
+    }
+  }
+
+  btnIngresar.addEventListener('click', intentarLogin);
+
+  campoLoginPw.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') intentarLogin();
+  });
+
+  /* Cerrar sesión */
+  btnSalir.addEventListener('click', function() {
+    pantallaLogin.style.display = 'flex';
+    appAdmin.style.display      = 'none';
+    campoLoginPw.value          = '';
+    campoLoginPw.focus();
+  });
+
+  /* ─────────────────────────────────────────
+     STORAGE
+  ───────────────────────────────────────── */
+  function cargarDesdeStorage() {
+    try {
+      const datos = localStorage.getItem(CLAVE_STORAGE_PRODUCTOS);
+      productos   = datos ? JSON.parse(datos) : [];
+    } catch (e) {
+      productos = [];
+    }
+  }
+
+  function guardarEnStorage() {
+    try {
+      localStorage.setItem(CLAVE_STORAGE_PRODUCTOS, JSON.stringify(productos));
+    } catch (e) {
+      mostrarToast('⚠️ No se pudo guardar (almacenamiento lleno)');
+    }
+  }
+
+  /* ─────────────────────────────────────────
+     RENDERIZADO
+  ───────────────────────────────────────── */
+  function renderizarProductos() {
+    contadorEl.textContent     = productos.length;
+    mensajeVacio.style.display = productos.length === 0 ? 'block' : 'none';
+    avisoExportar.style.display = cambiosSinExport && productos.length >= 0 ? 'flex' : 'none';
+
+    grillaProductos.innerHTML = '';
+
+    productos.forEach(function(p) {
+      const tarjeta = document.createElement('article');
+      tarjeta.className = 'tarjeta';
+
+      /* Imagen */
+      const divImg = document.createElement('div');
+      divImg.className = 'tarjeta-imagen';
+
+      if (p.imagenBase64) {
+        const img = document.createElement('img');
+        img.src = p.imagenBase64;
+        img.alt = p.nombre;
+        divImg.appendChild(img);
+      } else {
+        divImg.textContent = '🖼️';
+      }
+
+      /* Cuerpo */
+      const cuerpo = document.createElement('div');
+      cuerpo.className = 'tarjeta-cuerpo';
+
+      const nombre = document.createElement('p');
+      nombre.className   = 'tarjeta-nombre';
+      nombre.textContent = p.nombre;
+
+      const precio = document.createElement('p');
+      precio.className   = 'tarjeta-precio';
+      precio.textContent = p.precio;
+
+      cuerpo.appendChild(nombre);
+
+      if (p.descripcion) {
+        const desc = document.createElement('p');
+        desc.className   = 'tarjeta-descripcion';
+        desc.textContent = p.descripcion;
+        cuerpo.appendChild(desc);
+      }
+
+      cuerpo.appendChild(precio);
+
+      /* Botón eliminar */
+      const btnElim = document.createElement('button');
+      btnElim.className = 'btn-eliminar';
+      btnElim.innerHTML = '🗑️ Eliminar (vendido)';
+      btnElim.addEventListener('click', function() {
+        abrirModalEliminar(p.id);
+      });
+
+      tarjeta.appendChild(divImg);
+      tarjeta.appendChild(cuerpo);
+      tarjeta.appendChild(btnElim);
+      grillaProductos.appendChild(tarjeta);
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     VISTA PREVIA DE IMAGEN
+  ───────────────────────────────────────── */
+  campoImagen.addEventListener('change', function() {
+    const archivo = this.files[0];
+    if (!archivo) { previewImagen.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = function(e) {
+      previewImagen.src          = e.target.result;
+      previewImagen.style.display = 'block';
+    };
+    lector.readAsDataURL(archivo);
+  });
+
+  /* ─────────────────────────────────────────
+     AGREGAR PRODUCTO
+  ───────────────────────────────────────── */
+  formulario.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nombre      = campoNombre.value.trim();
+    const descripcion = campoDescripcion.value.trim();
+    const precio      = campoPrecio.value.trim();
+    const archivo     = campoImagen.files[0];
+
+    if (!nombre || !precio) {
+      mostrarToast('⚠️ Nombre y precio son obligatorios');
+      return;
+    }
+
+    if (archivo) {
+      const lector = new FileReader();
+      lector.onload = function(e) {
+        finalizarAgregarProducto(nombre, descripcion, precio, e.target.result);
+      };
+      lector.readAsDataURL(archivo);
+    } else {
+      finalizarAgregarProducto(nombre, descripcion, precio, null);
+    }
+  });
+
+  function finalizarAgregarProducto(nombre, descripcion, precio, imagenBase64) {
+    productos.push({ id: Date.now(), nombre, descripcion, precio, imagenBase64 });
+    guardarEnStorage();
+    marcarCambiosPendientes();
+    renderizarProductos();
+    limpiarFormulario();
+    mostrarToast('✅ Producto agregado');
+  }
+
+  function limpiarFormulario() {
+    formulario.reset();
+    previewImagen.style.display = 'none';
+    previewImagen.src = '';
+  }
+
+  /* ─────────────────────────────────────────
+     ELIMINAR PRODUCTO
+  ───────────────────────────────────────── */
+  function abrirModalEliminar(id) {
+    idAEliminar = id;
+    abrirModal(modalEliminar);
+  }
+
+  btnCancelarElim.addEventListener('click', function() { cerrarModal(modalEliminar); });
+
+  btnConfirmarElim.addEventListener('click', function() {
+    productos = productos.filter(function(p) { return p.id !== idAEliminar; });
+    guardarEnStorage();
+    marcarCambiosPendientes();
+    renderizarProductos();
+    cerrarModal(modalEliminar);
+    mostrarToast('🗑️ Producto eliminado');
+  });
+
+  /* ─────────────────────────────────────────
+     EXPORTAR CATÁLOGO PÚBLICO → index.html
+  ───────────────────────────────────────── */
+  btnExportar.addEventListener('click', function() {
+    const productosJSON = JSON.stringify(productos);
+
+    /* Plantilla del index.html público */
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artesanías Mariana Pasinato</title>
+  <style>
+    :root {
+      --primario:    #6b3f2a;
+      --acento:      #c9843a;
+      --fondo:       #fdf8f3;
+      --superficie:  #ffffff;
+      --texto:       #3b2a1a;
+      --texto-claro: #7a6050;
+      --borde:       #e0cfc0;
+      --radio:       12px;
+      --sombra:      0 4px 18px rgba(0,0,0,.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fondo); color: var(--texto); min-height: 100vh; }
+
+    /* Cabecera */
+    header {
+      background: linear-gradient(135deg, var(--primario) 0%, #4a2a18 100%);
+      color: #fff;
+      text-align: center;
+      padding: 2.5rem 1.5rem 2rem;
+    }
+    header .logo-emoji { font-size: 3rem; display: block; margin-bottom: .5rem; }
+    header h1 { font-size: clamp(1.6rem, 5vw, 2.5rem); font-weight: 800; line-height: 1.2; }
+    header p.subtitulo { margin-top: .5rem; font-size: 1rem; opacity: .85; font-style: italic; }
+
+    /* WhatsApp flotante */
+    #btn-whatsapp {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: #25d366; color: #fff; border: none; border-radius: 50px;
+      padding: .85rem 1.4rem; font-size: 1rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: .55rem;
+      box-shadow: 0 6px 22px rgba(37,211,102,.45); text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    #btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(37,211,102,.55); }
+    #btn-whatsapp svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+    /* Main */
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 6rem; }
+
+    #seccion-productos h2 {
+      font-size: 1.5rem; color: var(--primario); margin-bottom: 1.5rem;
+      padding-bottom: .5rem; border-bottom: 2px solid var(--borde);
+      display: flex; align-items: center; gap: .5rem;
+    }
+
+    #contador-badge {
+      font-size: .85rem; font-weight: 600; background: var(--acento);
+      color: #fff; border-radius: 20px; padding: .15rem .7rem;
+    }
+
+    /* Grilla */
+    #grilla-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+
+    /* Tarjeta */
+    .tarjeta {
+      background: var(--superficie); border-radius: var(--radio); box-shadow: var(--sombra);
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .tarjeta:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+
+    .tarjeta-imagen {
+      width: 100%; height: 200px; object-fit: cover; background: var(--fondo);
+      display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: var(--borde);
+    }
+    .tarjeta-imagen img { width: 100%; height: 100%; object-fit: cover; }
+
+    .tarjeta-cuerpo { padding: 1rem 1.1rem; flex: 1; display: flex; flex-direction: column; gap: .4rem; }
+    .tarjeta-nombre { font-size: 1.05rem; font-weight: 700; color: var(--primario); }
+    .tarjeta-descripcion { font-size: .88rem; color: var(--texto-claro); line-height: 1.5; flex: 1; }
+    .tarjeta-precio { font-size: 1.25rem; font-weight: 800; color: var(--acento); margin-top: .4rem; }
+
+    /* Vacío */
+    #mensaje-vacio { text-align: center; padding: 3rem 1rem; color: var(--texto-claro); }
+    #mensaje-vacio .emoji-grande { font-size: 3.5rem; display: block; }
+    #mensaje-vacio p { margin-top: .75rem; }
+
+    footer { text-align: center; padding: 1.5rem 1rem; font-size: .82rem; color: var(--texto-claro); border-top: 1px solid var(--borde); }
+
+    @media (max-width: 400px) { #grilla-productos { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo-emoji">🧶</span>
+  <h1>Artesanías Mariana Pasinato</h1>
+  <p class="subtitulo">Piezas únicas hechas con amor ✨</p>
+</header>
+
+<main>
+  <section id="seccion-productos">
+    <h2>🛍️ Productos disponibles <span id="contador-badge">0</span></h2>
+    <div id="mensaje-vacio" style="display:none">
+      <span class="emoji-grande">🪴</span>
+      <p>¡Pronto habrá nuevos productos disponibles!</p>
+    </div>
+    <div id="grilla-productos"></div>
+  </section>
+</main>
+
+<footer>© ${new Date().getFullYear()} Artesanías Mariana Pasinato — Hecho con 💛</footer>
+
+<!--
+  ⚠️  BOTÓN WHATSAPP
+  Reemplazá 5493484550992 con tu número real
+  Formato: 549 + código de área sin 0 + número sin 15
+-->
+<a
+  id="btn-whatsapp"
+  href="https://wa.me/5493484550992?text=Hola%20Mariana%2C%20vi%20tus%20art%C3%ADculos%20y%20me%20interesa%20consultarte%20%F0%9F%99%82"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Contactar por WhatsApp"
+>
+  <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M16 .8C7.6.8.8 7.6.8 16c0 2.7.7 5.3 2 7.6L.8 31.2l7.8-2c2.2 1.2 4.7 1.8 7.4 1.8 8.4 0 15.2-6.8 15.2-15.2C31.2 7.6 24.4.8 16 .8zm0 27.8c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.6 1.2 1.2-4.5-.3-.5C3.9 20.7 3.2 18.4 3.2 16 3.2 9.2 9.2 3.2 16 3.2S28.8 9.2 28.8 16 22.8 28.6 16 28.6zm8.3-10.8c-.5-.2-2.7-1.3-3.1-1.5-.4-.1-.7-.2-1 .2-.3.4-1.2 1.5-1.4 1.8-.3.3-.5.3-1 .1-.5-.2-2-.7-3.8-2.3-1.4-1.2-2.4-2.8-2.6-3.2-.3-.5 0-.7.2-1 .2-.2.5-.5.7-.8.2-.3.3-.5.4-.8.1-.3 0-.6-.1-.8-.1-.2-1-2.5-1.4-3.4-.4-.9-.7-.8-1-.8h-.8c-.3 0-.7.1-1.1.5-.4.4-1.4 1.4-1.4 3.4s1.5 3.9 1.7 4.2c.2.3 2.9 4.4 7 6.2 1 .4 1.7.7 2.3.9.9.3 1.8.3 2.5.2.8-.1 2.4-1 2.7-1.9.3-.9.3-1.7.2-1.9-.1-.1-.4-.2-.9-.4z"/>
+  </svg>
+  WhatsApp
+</a>
+
+<script>
+  /* Productos exportados desde el panel de administración */
+  var productos = ${productosJSON};
+
+  /* Renderizar catálogo */
+  var grilla   = document.getElementById('grilla-productos');
+  var vacio    = document.getElementById('mensaje-vacio');
+  var contador = document.getElementById('contador-badge');
+
+  contador.textContent = productos.length;
+  vacio.style.display  = productos.length === 0 ? 'block' : 'none';
+
+  productos.forEach(function(p) {
+    var tarjeta = document.createElement('article');
+    tarjeta.className = 'tarjeta';
+
+    var divImg = document.createElement('div');
+    divImg.className = 'tarjeta-imagen';
+
+    if (p.imagenBase64) {
+      var img = document.createElement('img');
+      img.src = p.imagenBase64;
+      img.alt = p.nombre;
+      divImg.appendChild(img);
+    } else {
+      divImg.textContent = '\\uD83D\\uDDBC\\uFE0F';
+    }
+
+    var cuerpo = document.createElement('div');
+    cuerpo.className = 'tarjeta-cuerpo';
+
+    var nombre = document.createElement('p');
+    nombre.className   = 'tarjeta-nombre';
+    nombre.textContent = p.nombre;
+    cuerpo.appendChild(nombre);
+
+    if (p.descripcion) {
+      var desc = document.createElement('p');
+      desc.className   = 'tarjeta-descripcion';
+      desc.textContent = p.descripcion;
+      cuerpo.appendChild(desc);
+    }
+
+    var precio = document.createElement('p');
+    precio.className   = 'tarjeta-precio';
+    precio.textContent = p.precio;
+    cuerpo.appendChild(precio);
+
+    tarjeta.appendChild(divImg);
+    tarjeta.appendChild(cuerpo);
+    grilla.appendChild(tarjeta);
+  });
+<\/script>
+</body>
+</html>`;
+
+    /* Crear el archivo y disparar la descarga */
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    /* Limpiar el aviso de cambios pendientes */
+    cambiosSinExport = false;
+    avisoExportar.style.display = 'none';
+    mostrarToast('📥 index.html descargado · Subilo a GitHub Pages');
+  });
+
+  /* ─────────────────────────────────────────
+     CAMBIAR CONTRASEÑA
+  ───────────────────────────────────────── */
+  btnCambiarPw.addEventListener('click', function() {
+    inputPwActual.value    = '';
+    inputPwNueva.value     = '';
+    inputPwConfirmar.value = '';
+    errorPwModal.textContent = '';
+    abrirModal(modalPassword);
+    inputPwActual.focus();
+  });
+
+  btnCancelarPw.addEventListener('click', function() { cerrarModal(modalPassword); });
+
+  btnGuardarPw.addEventListener('click', async function() {
+    const actual    = inputPwActual.value;
+    const nueva     = inputPwNueva.value;
+    const confirmar = inputPwConfirmar.value;
+
+    /* Validaciones */
+    if (!actual || !nueva || !confirmar) {
+      errorPwModal.textContent = '⚠️ Completá todos los campos.';
+      return;
+    }
+    if (nueva.length < 4) {
+      errorPwModal.textContent = '⚠️ La nueva contraseña debe tener al menos 4 caracteres.';
+      return;
+    }
+    if (nueva !== confirmar) {
+      errorPwModal.textContent = '⚠️ La nueva contraseña y la confirmación no coinciden.';
+      return;
+    }
+
+    /* Verificar contraseña actual */
+    const hashActual  = await hashear(actual);
+    const hashGuardado = await obtenerHashGuardado();
+
+    if (hashActual !== hashGuardado) {
+      errorPwModal.textContent = '❌ La contraseña actual es incorrecta.';
+      return;
+    }
+
+    /* Guardar nueva contraseña hasheada */
+    const hashNueva = await hashear(nueva);
+    localStorage.setItem(CLAVE_STORAGE_PASSWORD, hashNueva);
+    cerrarModal(modalPassword);
+    mostrarToast('🔑 Contraseña actualizada correctamente');
+  });
+
+  /* ─────────────────────────────────────────
+     UTILIDADES DE MODAL
+  ───────────────────────────────────────── */
+  function abrirModal(modal) { modal.classList.add('visible'); }
+  function cerrarModal(modal) { modal.classList.remove('visible'); }
+
+  /* Cerrar modales haciendo clic fuera */
+  [modalEliminar, modalPassword].forEach(function(m) {
+    m.addEventListener('click', function(e) {
+      if (e.target === m) cerrarModal(m);
+    });
+  });
+
+  /* Cerrar modales con Escape */
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    [modalEliminar, modalPassword].forEach(cerrarModal);
+  });
+
+  /* ─────────────────────────────────────────
+     AVISO DE CAMBIOS SIN EXPORTAR
+  ───────────────────────────────────────── */
+  function marcarCambiosPendientes() {
+    cambiosSinExport = true;
+  }
+
+  /* ─────────────────────────────────────────
+     TOAST
+  ───────────────────────────────────────── */
+  let timerToast = null;
+
+  function mostrarToast(mensaje) {
+    toastEl.textContent = mensaje;
+    toastEl.classList.add('visible');
+    if (timerToast) clearTimeout(timerToast);
+    timerToast = setTimeout(function() {
+      toastEl.classList.remove('visible');
+    }, 3500);
+  }
+</script>
+
+</body>
+</html>
